@@ -6,6 +6,7 @@ import java.util.*;
 
 // 3 - Deve conter uma classe Principal para executar as seguintes ações
 public class Principal {
+    public static List<Funcionario> funcionarios = new ArrayList<>();
     public static String[][] dadosFuncionarios = {
             {"Maria","18/10/2000","2009.44","Operador"},
             {"João","12/05/1990","2284.38","Operador"},
@@ -22,8 +23,8 @@ public class Principal {
     public static void main(String[] args) {
 
         // 3.1 – Inserir todos os funcionários, na mesma ordem e informações da tabela acima.
-        List<Funcionario> funcionarios = new ArrayList<>();
-
+        //List<Funcionario> funcionarios = new ArrayList<>();
+        
         for(String[] dadosFuncionario: dadosFuncionarios){
             Funcionario funcionario = new Funcionario(dadosFuncionario[0],dadosFuncionario[1],new BigDecimal(dadosFuncionario[2]),dadosFuncionario[3]);
             funcionarios.add(funcionario);
@@ -47,6 +48,7 @@ public class Principal {
         for (Funcionario f : funcionarios){
             f.updateSalario(10.0);
         }
+
 
         // Debug para verificar se aumento funcionou
         // imprimirListaDeFuncionarios(funcionarios);
@@ -84,6 +86,10 @@ public class Principal {
         }
 
         //3.9 – Imprimir o funcionário com a maior idade, exibir os atributos: nome e idade.
+        
+        // Adicionado possibilidade de executar em thread diferente caso fosse necessário aumentar velocidade de processamento
+        // new Thread(t1).start();
+        
         Funcionario funcMaisVelho = new Funcionario();
         LocalDate dataMaisVelho = LocalDate.parse("31/12/9999", DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         for (Funcionario f : funcionarios) {
@@ -94,6 +100,7 @@ public class Principal {
             }
         }
         System.out.println("Nome: " + funcMaisVelho.getNome() + "\n" + "Idade: " + funcMaisVelho.calcularIdade());
+        
 
         //3.10 – Imprimir a lista de funcionários por ordem alfabética.
         List<Funcionario> funcionariosOrdemAlfabetica = new ArrayList<>();
@@ -120,9 +127,36 @@ public class Principal {
     }
 
     public static void imprimirListaDeFuncionarios(List<Funcionario> func){
-        func.forEach(System.out::println);
+        // Adicionando possibilidade de executar em thread diferente caso fosse necessario aumentar velocidade de processamento
+        // new Thread(t2).start();
+        funcionarios.forEach(System.out::println);
     }
     public static void removerFuncionarioPorNome(String nome, List<Funcionario> func){
         func.removeIf(funcionario -> funcionario.getNome().equalsIgnoreCase(nome));
     }
+
+    private static Runnable t1 = new Runnable() {
+        public void run() {
+            try{
+                Funcionario funcMaisVelho = new Funcionario();
+                LocalDate dataMaisVelho = LocalDate.parse("31/12/9999", DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                for (Funcionario f : funcionarios) {
+                    LocalDate dNasc = f.getDataNascimento();
+                    if (dNasc.isBefore(dataMaisVelho)) {
+                        dataMaisVelho = f.getDataNascimento();
+                        funcMaisVelho = f;
+                    }
+                }
+                System.out.println("Nome: " + funcMaisVelho.getNome() + "\n" + "Idade: " + funcMaisVelho.calcularIdade());
+            } catch (Exception e){}
+       }
+    };
+
+    private static Runnable t2 = new Runnable() {
+        public void run() {
+            try{
+                funcionarios.forEach(System.out::println);
+            } catch (Exception e){}
+       }
+    };
 }
